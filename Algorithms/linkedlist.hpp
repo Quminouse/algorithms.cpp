@@ -7,9 +7,11 @@ public:
   Option<std::shared_ptr<LinkedList<T>>> next;
 
   LinkedList(T _value, Option<std::shared_ptr<LinkedList<T>>> _next);
+  LinkedList(T _value);
   ~LinkedList();
 
   static LinkedList<T> from_vector(Vector<T> vector);
+  void add(T value);
 
   void print();
 };
@@ -19,6 +21,11 @@ LinkedList<T>::LinkedList(T _value,
                           Option<std::shared_ptr<LinkedList<T>>> _next) {
   value = _value;
   next = _next;
+};
+
+template <typename T> LinkedList<T>::LinkedList(T _value) {
+  value = _value;
+  next = Option<std::shared_ptr<LinkedList>>();
 };
 
 template <typename T> LinkedList<T>::~LinkedList(){};

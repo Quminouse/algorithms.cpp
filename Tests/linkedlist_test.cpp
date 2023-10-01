@@ -4,8 +4,10 @@
 #define LINKEDLIST_TEST_FILE "LINKEDLIST"
 
 bool from_vector() {
-  auto vector = Vector<int>::with_capacity(16);
-  vector.randomize();
+  auto vector = Vector<int>(16);
+  for (int i = 0; i < vector.capacity; ++i) {
+    vector.insert(rand(), i);
+  }
 
   auto ll = LinkedList<int>::from_vector(vector);
   vector.rev();

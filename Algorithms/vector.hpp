@@ -1,34 +1,33 @@
 #pragma once
-#include <cstdint>
+#define DEFAULT_CAPACITY 16
 #include <memory>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 
 #include "option.hpp"
 
 template <typename T> class Vector {
 private:
   std::shared_ptr<T> data;
-  Vector(std::shared_ptr<T> _data, uint32_t _size, uint32_t _capacity);
+  Vector(std::shared_ptr<T> _data, size_t _size, size_t _capacity);
 
 public:
-  uint32_t size;
-  uint32_t capacity;
+  size_t size;
+  size_t capacity;
 
-  static Vector from_array(std::shared_ptr<T> data, uint32_t size);
-  static Vector with_capacity(uint32_t capacity);
+  Vector(size_t _capacity);
+  Vector(std::shared_ptr<T> _data, size_t _size);
 
   ~Vector();
 
   void push(T value);
   T pop();
 
-  void insert(T value, uint32_t index);
-  Option<T> get(uint32_t index);
+  void insert(T value, size_t index);
+  Option<T> get(size_t index);
 
   void fill(T value);
-  void randomize();
 
   void print();
 
@@ -36,23 +35,24 @@ public:
 };
 
 template <typename T>
-Vector<T>::Vector(std::shared_ptr<T> _data, uint32_t _size,
-                  uint32_t _capacity) {
-  data = _data;
+Vector<T>::Vector(std::shared_ptr<T> _data, size_t _size, size_t _capacity) {
   size = _size;
   capacity = _capacity;
+  data = _data;
 }
 
 template <typename T> Vector<T>::~Vector(){};
 
-template <typename T>
-Vector<T> Vector<T>::from_array(std::shared_ptr<T> data, uint32_t size) {
-  return Vector<T>(data, size, size);
+template <typename T> Vector<T>::Vector(std::shared_ptr<T> _data, size_t _size) {
+  data = _data;
+  size = _size;
+  capacity = _size;
 }
 
-template <typename T> Vector<T> Vector<T>::with_capacity(uint32_t capacity) {
-  auto data = std::shared_ptr<T>((T *)calloc(capacity, sizeof(T)));
-  return Vector<T>(data, 0, capacity);
+template <typename T> Vector<T>::Vector(size_t _capacity) {
+  data = std::shared_ptr<T>((T *)calloc(_capacity, sizeof(T)));
+  size = 0;
+  capacity = _capacity;
 }
 
 template <typename T> void Vector<T>::push(T value) {
@@ -70,13 +70,13 @@ template <typename T> T Vector<T>::pop() {
   return 0;
 }
 
-template <typename T> void Vector<T>::insert(T value, uint32_t index) {
+template <typename T> void Vector<T>::insert(T value, size_t index) {
   if (index < capacity) {
     data.get()[index] = value;
   }
 }
 
-template <typename T> Option<T> Vector<T>::get(uint32_t index) {
+template <typename T> Option<T> Vector<T>::get(size_t index) {
   if (index < capacity) {
     return Option<T>(data.get()[index]);
   }
@@ -84,28 +84,22 @@ template <typename T> Option<T> Vector<T>::get(uint32_t index) {
 }
 
 template <typename T> void Vector<T>::fill(T value) {
-  for (uint32_t i = 0; i < capacity; ++i) {
+  for (size_t i = 0; i < capacity; ++i) {
     data.get()[i] = value;
-  }
-}
-
-template <typename T> void Vector<T>::randomize() {
-  for (uint32_t i = 0; i < capacity; ++i) {
-    data.get()[i] = rand();
   }
 }
 
 template <typename T> void Vector<T>::print() {
   printf("[%d, ", get(0).unwrap());
-  for (uint32_t i = 1; i < capacity - 1; ++i) {
+  for (size_t i = 1; i < capacity - 1; ++i) {
     printf("%d, ", get(i).unwrap());
   }
   printf("%d]\n", get(capacity - 1).unwrap());
 }
 
 template <typename T> void Vector<T>::rev() {
-  auto new_vector = Vector<T>::with_capacity(capacity);
-  for (uint32_t i = 0; i < capacity; ++i) {
+  auto new_vector = Vector<T>(capacity);
+  for (size_t i = 0; i < capacity; ++i) {
     new_vector.insert(get(i).unwrap(), capacity - i - 1);
   }
   *this = new_vector;
